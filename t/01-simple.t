@@ -33,10 +33,8 @@ SKIP: {
 		},
 	);
 
-	# drop the database
-	for ($conn->keys('plack_test_sessions_*')) {
-    $conn->del($_);
-  }
+	# drop the keys
+	$conn->del($_) for $conn->keys('plack_test_sessions_*');
 }
 
 done_testing;
