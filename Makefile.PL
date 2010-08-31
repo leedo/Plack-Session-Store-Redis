@@ -14,6 +14,7 @@ WriteMakefile(
     PREREQ_PM => {
         'Redis' => 0,
         'Plack' => 0,
+        'Plack::Session' => 0,
         'Test::More' => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
