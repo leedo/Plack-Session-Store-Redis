@@ -57,6 +57,7 @@ sub new {
   my $self = {
     prefix => $params{prefix} || 'session',
     redis  => Redis->new(server => $server),
+    server => $server,
   };
 
   bless $self, $class;
@@ -69,28 +70,29 @@ Fetches a session object from the database.
 =cut
 
 sub fetch {
-  my ($self, $session_id, $is_retry) = @_;
+  my ($self, $session_id) = @_;
 
-  my $session = eval {
-    $self->redis->get($self->prefix."_".$session_id)
-  };
-  
-  if ($@ and !$is_retry) {
-    $session = $self->_retry("fetch", $session_id);
-  }
+  my $session = $self->_exec("get", $session_id);
 
   return ($session ? decode_json $session : ())
 }
 
 sub _reconnect {
   my $self = shift;
-  $self->redis(Redis->new(server => $self->server));
 }
 
-sub _retry {
-  my ($self, $command, @args) = @_;
-  $self->_reconnect;
-  return $self->$command(@args, 1);
+sub _exec {
+  my ($self, $command, $session, @args) = @_;
+  unshift @args, $self->prefix."_".$session;
+
+  my $ret = eval {$self->redis->$command(@args)};
+
+  if ($@) {
+    $self->redis(Redis->new(server => $self->server));
+    $ret = $self->redis->$command(@args);
+  }
+
+  return $ret;
 }
 
 =head2 store( $session_id, \%session_obj )
@@ -100,15 +102,9 @@ Stores a session object in the database.
 =cut
 
 sub store {
-  my ($self, $session_id, $session_obj, $is_retry) = @_;
+  my ($self, $session_id, $session_obj) = @_;
 
-  eval {
-    $self->redis->set($self->prefix."_".$session_id, encode_json $session_obj);
-  };
-
-  if ($@ and !$is_retry) {
-    $self->_retry("store", $session_id, $session_obj);
-  }
+  $self->_exec("set", $session_id, encode_json $session_obj);
 }
 
 =head2 remove( $session_id )
@@ -118,15 +114,9 @@ Removes the session object from the database.
 =cut
 
 sub remove {
-  my ($self, $session_id, $is_retry) = @_;
+  my ($self, $session_id) = @_;
 
-  eval {
-    $self->redis->del($self->prefix."_".$session_id);
-  };
-
-  if ($@ and !$is_retry) {
-    $self->_retry("remove", $session_id);
-  }
+  $self->_exec("del", $session_id);
 }
 
 =head1 AUTHOR
