@@ -14,7 +14,7 @@ my ($conn, $skip);
 eval { $conn = Redis->new; };
 
 SKIP: {
-	skip "Redis needs to be running for this test.", 1 if $@;
+	skip "Redis needs to be running for this test.", 1 if $@ or !$conn;
 
 	t::lib::TestSessionHash::run_all_tests(
 		store  => Plack::Session::Store::Redis->new(prefix => 'plack_test_sessions'),
