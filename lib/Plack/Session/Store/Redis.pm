@@ -77,10 +77,6 @@ sub fetch {
   return ($session ? decode_json $session : ())
 }
 
-sub _reconnect {
-  my $self = shift;
-}
-
 sub _exec {
   my ($self, $command, $session, @args) = @_;
   unshift @args, $self->prefix."_".$session;
