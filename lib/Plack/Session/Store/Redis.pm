@@ -7,7 +7,7 @@ use parent 'Plack::Session::Store';
 use Redis;
 use JSON;
 
-use Plack::Util::Accessor qw/prefix redis/;
+use Plack::Util::Accessor qw/prefix redis expire/;
 
 =head1 NAME
 
@@ -43,7 +43,13 @@ This module will store Plack session data on a redis server.
 
 =head2 new( %params )
 
-Create a instance of this module. No parameters are required, but there are a few defaults that can be changed. You can set the IP address of the server with the 'host' option, and the port with 'port'. By default all of the keys in Redis will be prefixed with "session", but this can be changed with the 'prefix' option.
+Create a instance of this module. No parameters are required, but
+there are a few defaults that can be changed. You can set the IP
+address of the server with the 'host' option, and the port with
+'port'. By default all of the keys in Redis will be prefixed with
+"session", but this can be changed with the 'prefix' option. You
+can also provide an 'expire' option that will be used to set an
+expiration on the redis key.
 
 =cut
 
@@ -58,6 +64,7 @@ sub new {
     prefix => $params{prefix} || 'session',
     redis  => Redis->new(server => $server),
     server => $server,
+    expire => $params{expire} || undef,
   };
 
   bless $self, $class;
@@ -101,6 +108,10 @@ sub store {
   my ($self, $session_id, $session_obj) = @_;
 
   $self->_exec("set", $session_id, encode_json $session_obj);
+
+  if ($self->expire) {
+    $self->_exec("expire", $session_id, $self->expire);
+  }
 }
 
 =head2 remove( $session_id )
@@ -121,11 +132,12 @@ Lee Aylward, C<< <leedo at cpan.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-plack-session-store-redis at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Plack-Session-Store-Redis>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
+Please report any bugs or feature requests to
+C<bug-plack-session-store-redis at rt.cpan.org>, or through the web
+interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Plack-Session-Store-Redis>.
+I will be notified, and then you'll automatically be notified of
+progress on your bug as I make changes.
 
 
 =head1 SUPPORT
