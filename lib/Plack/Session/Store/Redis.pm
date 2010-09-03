@@ -7,7 +7,7 @@ use parent 'Plack::Session::Store';
 use Redis;
 use JSON;
 
-use Plack::Util::Accessor qw/prefix redis expire/;
+use Plack::Util::Accessor qw/prefix redis expire server/;
 
 =head1 NAME
 
