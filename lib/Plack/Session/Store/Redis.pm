@@ -15,11 +15,11 @@ Plack::Session::Store::Redis - Redis based session store for Plack apps.
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 =head1 SYNOPSIS
@@ -95,6 +95,10 @@ sub _exec {
     $ret = $self->redis->$command(@args);
   }
 
+  if (($command eq "get" or $command eq "set") and $self->expire) {
+    $self->_exec("expire", $session, $self->expire);
+  }
+
   return $ret;
 }
 
@@ -108,10 +112,6 @@ sub store {
   my ($self, $session_id, $session_obj) = @_;
 
   $self->_exec("set", $session_id, encode_json $session_obj);
-
-  if ($self->expire) {
-    $self->_exec("expire", $session_id, $self->expire);
-  }
 }
 
 =head2 remove( $session_id )

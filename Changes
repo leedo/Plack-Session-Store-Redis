@@ -1,5 +1,8 @@
 Revision history for Plack-Session-Store-Redis
 
-0.01    Date/time
+0.01    08/05/10
         First version, released on an unsuspecting world.
 
+0.02    08/05/10
+        - added missing server accessor
+        - added missing MANIFEST
