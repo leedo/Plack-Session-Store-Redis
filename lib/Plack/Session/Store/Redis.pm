@@ -7,7 +7,7 @@ use parent 'Plack::Session::Store';
 use Redis;
 use JSON;
 
-use Plack::Util::Accessor qw/prefix redis expire server/;
+use Plack::Util::Accessor qw/prefix redis expires server/;
 
 =head1 NAME
 
@@ -48,7 +48,7 @@ there are a few defaults that can be changed. You can set the IP
 address of the server with the 'host' option, and the port with
 'port'. By default all of the keys in Redis will be prefixed with
 "session", but this can be changed with the 'prefix' option. You
-can also provide an 'expire' option that will be used to set an
+can also provide an 'expires' option that will be used to set an
 expiration on the redis key.
 
 =cut
@@ -61,10 +61,10 @@ sub new {
             ($params{port} || 6379);
 
   my $self = {
-    prefix => $params{prefix} || 'session',
-    redis  => Redis->new(server => $server),
-    server => $server,
-    expire => $params{expire} || undef,
+    prefix  => $params{prefix} || 'session',
+    redis   => Redis->new(server => $server),
+    server  => $server,
+    expires => $params{expires} || undef,
   };
 
   bless $self, $class;
@@ -95,8 +95,8 @@ sub _exec {
     $ret = $self->redis->$command(@args);
   }
 
-  if ($self->expire and ($command eq "get" or $command eq "set")) {
-    $self->redis->expire($args[0], $self->expire);
+  if ($self->expires and ($command eq "get" or $command eq "set")) {
+    $self->redis->expire($args[0], $self->expires);
   }
 
   return $ret;
