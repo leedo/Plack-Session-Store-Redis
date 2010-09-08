@@ -95,8 +95,8 @@ sub _exec {
     $ret = $self->redis->$command(@args);
   }
 
-  if (($command eq "get" or $command eq "set") and $self->expire) {
-    $self->_exec("expire", $session, $self->expire);
+  if ($self->expire and ($command eq "get" or $command eq "set")) {
+    $self->redis->expire($args[0], $self->expire);
   }
 
   return $ret;
