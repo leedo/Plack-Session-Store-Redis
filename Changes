@@ -9,3 +9,13 @@ Revision history for Plack-Session-Store-Redis
 
 0.03    09/14/10
         - added missing JSON dep
+
+0.04    10/07/13
+        - added accessor for serializer / deserializer /
+          redis_factory and its test (9re)
+        - t/02-storable.t tests with Storable
+          serializer / deserializer if it's available. (9re)
+        - t/03-message-pack.t tests with Data::MessagePack
+          serializer / deserializer if it's available. (9re)
+        - redis_factory will be useful when you want to replace Redis.pm
+          with other modules which work with different redis backends like hiredis. (9re)
