@@ -12,6 +12,7 @@ WriteMakefile(
       : ()),
     PL_FILES            => {},
     PREREQ_PM => {
+        'JSON'  => 0,
         'Redis' => 0,
         'Plack' => 0,
         'Plack::Session' => 0,

@@ -6,3 +6,6 @@ Revision history for Plack-Session-Store-Redis
 0.02    08/05/10
         - added missing server accessor
         - added missing MANIFEST
+
+0.03    09/14/10
+        - added missing JSON dep

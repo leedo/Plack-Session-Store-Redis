@@ -15,11 +15,11 @@ Plack::Session::Store::Redis - Redis based session store for Plack apps.
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 =head1 SYNOPSIS
@@ -37,7 +37,9 @@ our $VERSION = '0.02';
 
 =head1 DESCRIPTION
 
-This module will store Plack session data on a redis server.
+This module will store Plack session data on a redis server. NOTE:
+only works with redis 1.2.x, which appears to be a limitation of
+Redis.pm.
 
 =head1 METHODS
 
