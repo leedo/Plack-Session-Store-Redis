@@ -7,7 +7,7 @@ use parent 'Plack::Session::Store';
 use Redis;
 use JSON;
 
-use Plack::Util::Accessor qw/prefix redis expires server/;
+use Plack::Util::Accessor qw/prefix redis_factory redis expires server serializer deserializer/;
 
 =head1 NAME
 
@@ -62,11 +62,15 @@ sub new {
             ($params{host} || '127.0.0.1').":".
             ($params{port} || 6379);
 
+  my $redis_factory = $params{redis_factory} || sub { Redis->new(server => $server); };
   my $self = {
-    prefix  => $params{prefix} || 'session',
-    redis   => Redis->new(server => $server),
-    server  => $server,
-    expires => $params{expires} || undef,
+    prefix        => $params{prefix} || 'session',
+    redis         => $params{redis} || $redis_factory->(),
+    redis_factory => $redis_factory,
+    server        => $params{server} || $server,
+    expires       => $params{expires} || undef,
+    serializer    => $params{serializer} || sub { encode_json($_[0]); },
+    deserializer  => $params{deserializer} || sub { decode_json($_[0]); }
   };
 
   bless $self, $class;
@@ -83,7 +87,7 @@ sub fetch {
 
   my $session = $self->_exec("get", $session_id);
 
-  return ($session ? decode_json $session : ())
+  return $session ? $self->{deserializer}($session) : ();
 }
 
 sub _exec {
@@ -93,7 +97,7 @@ sub _exec {
   my $ret = eval {$self->redis->$command(@args)};
 
   if ($@) {
-    $self->redis(Redis->new(server => $self->server));
+    $self->redis($self->redis_factory->());
     $ret = $self->redis->$command(@args);
   }
 
@@ -113,7 +117,7 @@ Stores a session object in the database.
 sub store {
   my ($self, $session_id, $session_obj) = @_;
 
-  $self->_exec("set", $session_id, encode_json $session_obj);
+  $self->_exec("set", $session_id, $self->{serializer}($session_obj));
 }
 
 =head2 remove( $session_id )
