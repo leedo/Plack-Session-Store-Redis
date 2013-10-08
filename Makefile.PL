@@ -17,6 +17,7 @@ WriteMakefile(
         'Plack' => 0,
         'Plack::Session' => 0,
         'Test::More' => 0,
+        'Test::Exception' => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Plack-Session-Store-Redis-*' },

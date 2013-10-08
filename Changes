@@ -19,3 +19,6 @@ Revision history for Plack-Session-Store-Redis
           serializer / deserializer if it's available. (9re)
         - redis_factory will be useful when you want to replace Redis.pm
           with other modules which work with different redis backends like hiredis. (9re)
+
+0.05    10/08/13
+        - Add Test::Exception dependency
